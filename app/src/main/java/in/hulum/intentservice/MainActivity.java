@@ -41,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     private TextView textviewPercentage;
     private Intent serviceIntent;
     private ResponseReceiver responseReceiver = new ResponseReceiver();
+    private static final String TAG = "MainActivity";
 
 
     @Override
@@ -56,8 +57,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         IntentFilter myFilter = new IntentFilter();
-        myFilter.addAction(SimpleIntentService.ACTION_FOO);
-        myFilter.addAction(SimpleIntentService.ACTION_IMPORT_RAW_DATA);
+        myFilter.addAction(ImportData.ACTION_FOO);
+        myFilter.addAction(ImportData.ACTION_IMPORT_RAW_DATA);
         //registerReceiver(responseReceiver,new IntentFilter(SimpleIntentService.ACTION_FOO));
         registerReceiver(responseReceiver,myFilter);
     }
@@ -65,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        Log.d("MainActivity","onStop() called!!!");
+        Log.d(TAG,"onStop() called!!!");
         unregisterReceiver(responseReceiver);
     }
 
@@ -79,8 +80,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void importButtonClicked(View view) {
         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        //intent.setType("application/vnd.ms-excel");
-        intent.setType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        intent.setType("application/vnd.ms-excel");
+        //intent.setType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         //intent.setType("*/*");
         //String[] mimeTypes = {"application/vnd.ms-excel","application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"};
         //intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -108,8 +109,8 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.e("MainActivity","Entered onReceive intent action is " + intent.getAction());
-            if(intent.getAction().equals(SimpleIntentService.ACTION_FOO)){
+            Log.e(TAG,"Entered onReceive intent action is " + intent.getAction());
+            if(intent.getAction().equals(ImportData.ACTION_FOO)){
                 int value = intent.getIntExtra("percentage",-1);
                 progressBar.setProgress(value);
                 textviewPercentage.setText(value + "% completed");
@@ -118,35 +119,39 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
 
-            else if(intent.getAction().equals(SimpleIntentService.ACTION_IMPORT_RAW_DATA)){
-                boolean isError = intent.getBooleanExtra(SimpleIntentService.PARAM_ERROR,false);
-                boolean isAnalyzing = intent.getBooleanExtra(SimpleIntentService.PARAM_IS_ANALYSING,false);
-                boolean isImporting = intent.getBooleanExtra(SimpleIntentService.PARAM_IS_IMPORTING,false);
-                boolean isUserIdentified = intent.getBooleanExtra(SimpleIntentService.PARAM_USER_IDENTIFIED,false);
-                Log.d("MainActivity","error is " + isError + " analysing " + isAnalyzing + " importing " + isImporting + " user identified " + isUserIdentified);
+            else if(intent.getAction().equals(ImportData.ACTION_IMPORT_RAW_DATA)){
+                boolean isError = intent.getBooleanExtra(ImportData.PARAM_ERROR,false);
+                boolean isAnalyzing = intent.getBooleanExtra(ImportData.PARAM_IS_ANALYSING,false);
+                boolean isImporting = intent.getBooleanExtra(ImportData.PARAM_IS_IMPORTING,false);
+                boolean isUserIdentified = intent.getBooleanExtra(ImportData.PARAM_USER_IDENTIFIED,false);
+                Log.d(TAG,"error is " + isError + " analysing " + isAnalyzing + " importing " + isImporting + " user identified " + isUserIdentified);
                 if(isError){
-                    String msg = intent.getStringExtra(SimpleIntentService.PARAM_MESSAGE);
+                    String msg = intent.getStringExtra(ImportData.PARAM_MESSAGE);
                     textviewPercentage.setText(msg);
                 }
                 else if(isAnalyzing){
-                    String msg = intent.getStringExtra(SimpleIntentService.PARAM_MESSAGE);
-                    int value = intent.getIntExtra(SimpleIntentService.PARAM_PERCENTAGE_COMPLETED,0);
+                    String msg = intent.getStringExtra(ImportData.PARAM_MESSAGE);
+                    int value = intent.getIntExtra(ImportData.PARAM_PERCENTAGE_COMPLETED,0);
                     textviewPercentage.setText(msg);
                     progressBar.setProgress(value);
+                    Log.d(TAG,"Analysing message " + msg + " and percent " + value);
                 }
                 else if(isImporting){
-                    String msg = intent.getStringExtra(SimpleIntentService.PARAM_MESSAGE);
-                    int value = intent.getIntExtra(SimpleIntentService.PARAM_PERCENTAGE_COMPLETED,0);
+                    String msg = intent.getStringExtra(ImportData.PARAM_MESSAGE);
+                    int value = intent.getIntExtra(ImportData.PARAM_PERCENTAGE_COMPLETED,0);
                     textviewPercentage.setText(msg);
                     progressBar.setProgress(value);
                 }
                 else if(isUserIdentified){
-                    String msg = intent.getStringExtra(SimpleIntentService.PARAM_MESSAGE);
+                    String msg = intent.getStringExtra(ImportData.PARAM_MESSAGE);
                     textviewPercentage.setText(msg);
+                    Log.d(TAG,"User identified is " + intent.getStringExtra(ImportData.PARAM_USER_TYPE));
                 }
                 else{
-                    String msg = intent.getStringExtra(SimpleIntentService.PARAM_MESSAGE);
+                    String msg = intent.getStringExtra(ImportData.PARAM_MESSAGE);
                     textviewPercentage.setText(msg);
+                    Log.d(TAG,"Percent completed is  " + intent.getIntExtra(ImportData.PARAM_PERCENTAGE_COMPLETED,-1));
+                    Log.d(TAG,"Message is " + msg);
                 }
             }
         }
@@ -154,7 +159,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     public  boolean isStoragePermissionGranted() {
-        String TAG = "Permissions";
+
         if (Build.VERSION.SDK_INT >= 23) {
             if (checkSelfPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     == PackageManager.PERMISSION_GRANTED) {
@@ -177,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if(grantResults[0]== PackageManager.PERMISSION_GRANTED){
-            Log.v("PermissionResult","Permission: "+permissions[0]+ "was "+grantResults[0]);
+            Log.v(TAG,"Permission: "+permissions[0]+ "was "+grantResults[0]);
             //resume tasks needing this permission
         }
     }

@@ -21,7 +21,7 @@
 
         <service
             android:name=".SimpleIntentService"
-            android:exported="false"></service>
+            android:exported="false" />
     </application>
 
 </manifest>
