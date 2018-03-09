@@ -31,7 +31,6 @@ public class ImportData {
 
     public static final String EXTRA_PARAM1 = "in.hulum.intentservice.extra.PARAM1";
     public static final String EXTRA_PARAM2 = "in.hulum.intentservice.extra.PARAM2";
-    public static final String EXTRA_PARAM_URI = "in.hulum.intentservice.extra.PARAM_URI";
 
     public static final String PARAM_ERROR = "in.hulum.intentservice.extra.PARAM_ERROR";
     public static final String PARAM_MESSAGE = "in.hulum.intentservice.extra.PARAM_ERROR_MESSAGE";

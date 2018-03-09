@@ -59,7 +59,6 @@ public class SimpleIntentService extends IntentService {
         Intent intent = new Intent(context,SimpleIntentService.class);
         intent.setAction(ImportData.ACTION_IMPORT_RAW_DATA);
         intent.setDataAndType(uriParam,"application/vnd.ms-excel");
-        //intent.putExtra(ImportData.EXTRA_PARAM_URI,uriParam.toString());
         context.startService(intent);
     }
 
@@ -69,23 +68,6 @@ public class SimpleIntentService extends IntentService {
         if(intent!=null){
             ImportData.executeAction(this,intent);
         }
-        /*
-        if (intent != null) {
-            final String action = intent.getAction();
-            if (ImportData.ACTION_FOO.equals(action)) {
-                final String param1 = intent.getStringExtra(ImportData.EXTRA_PARAM1);
-                final String param2 = intent.getStringExtra(ImportData.EXTRA_PARAM2);
-                ImportData.handleActionFoo(this,param1, param2);
-            } else if (ImportData.ACTION_BAZ.equals(action)) {
-                final String param1 = intent.getStringExtra(ImportData.EXTRA_PARAM1);
-                final String param2 = intent.getStringExtra(ImportData.EXTRA_PARAM2);
-                ImportData.handleActionBaz(param1, param2);
-            }
-            else if(ImportData.ACTION_IMPORT_RAW_DATA.equals(action)){
-                final String uriString = intent.getStringExtra(ImportData.EXTRA_PARAM_URI);
-                final Uri importFileUri = Uri.parse(uriString);
-                ImportData.handleActionImportRawData(importFileUri);
-            }
-        }*/
+
     }
 }
