@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">Intent Service</string>
+    <string-array name="excel_headers">
+        <item>ac_year</item>
+        <item>state_name</item>
+        <item>district_code</item>
+        <item>district_name</item>
+        <item>blkcd</item>
+        <item>blkname</item>
+        <item>clucd</item>
+        <item>cluname</item>
+        <item>vilcd</item>
+        <item>vilname</item>
+        <item>schcd</item>
+        <item>uschcd</item>
+        <item>schname</item>
+        <item>schstatus</item>
+        <item>pancd</item>
+        <item>panname</item>
+        <item>habitcd</item>
+        <item>habname</item>
+        <item>municipalcd</item>
+        <item>munname</item>
+        <item>city</item>
+        <item>cityname</item>
+        <item>aconstcd</item>
+        <item>constname</item>
+        <item>edublkcd</item>
+        <item>blkname</item>
+    </string-array>
+</resources>
