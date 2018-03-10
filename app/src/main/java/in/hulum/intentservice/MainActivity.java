@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -60,14 +61,15 @@ public class MainActivity extends AppCompatActivity {
         myFilter.addAction(ImportData.ACTION_FOO);
         myFilter.addAction(ImportData.ACTION_IMPORT_RAW_DATA);
         //registerReceiver(responseReceiver,new IntentFilter(SimpleIntentService.ACTION_FOO));
-        registerReceiver(responseReceiver,myFilter);
+        LocalBroadcastManager.getInstance(this).registerReceiver(responseReceiver,myFilter);
+        //registerReceiver(responseReceiver,myFilter);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         Log.d(TAG,"onStop() called!!!");
-        unregisterReceiver(responseReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(responseReceiver);
     }
 
     public void startButtonClicked(View view) {

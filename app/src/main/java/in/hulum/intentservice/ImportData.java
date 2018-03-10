@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
 import android.os.SystemClock;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -82,7 +83,7 @@ public class ImportData {
         broadcastIntent.setAction(ACTION_FOO);
         for(int i=0;i<=100;i++){
             broadcastIntent.putExtra("percentage",i);
-            context.sendBroadcast(broadcastIntent);
+            LocalBroadcastManager.getInstance(context).sendBroadcast(broadcastIntent);
             SystemClock.sleep(100);
             Log.d(TAG,"Loop is running i value is " + i);
         }
@@ -298,7 +299,7 @@ public class ImportData {
         broadcastIntent.putExtra(PARAM_MESSAGE,message);
         broadcastIntent.putExtra(PARAM_PERCENTAGE_COMPLETED,percentageCompleted);
         broadcastIntent.putExtra(PARAM_USER_TYPE,userType);
-        context.sendBroadcast(broadcastIntent);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(broadcastIntent);
     }
 
 
