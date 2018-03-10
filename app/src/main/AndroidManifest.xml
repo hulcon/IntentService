@@ -3,6 +3,7 @@
     package="in.hulum.intentservice">
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:allowBackup="true"
@@ -20,8 +21,9 @@
         </activity>
 
         <service
-            android:name=".SimpleIntentService"
-            android:exported="false" />
+            android:name=".SimpleJobIntentService"
+            android:exported="false"
+            android:permission="android.permission.BIND_JOB_SERVICE"/>
     </application>
 
 </manifest>

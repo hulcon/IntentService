@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -17,19 +16,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.DataFormatter;
-import org.apache.poi.ss.usermodel.Header;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
-
-import java.io.IOException;
-import java.util.Iterator;
 
 
 
@@ -43,6 +29,7 @@ public class MainActivity extends AppCompatActivity {
     private Intent serviceIntent;
     private ResponseReceiver responseReceiver = new ResponseReceiver();
     private static final String TAG = "MainActivity";
+    static final int REQUEST_CODE_IMPORT_FILE_PICKER_ACTIVITY_FOR_RESULT = 7;
 
 
     @Override
@@ -73,11 +60,11 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void startButtonClicked(View view) {
-        SimpleIntentService.startActionFoo(this,"First","Second");
+        SimpleJobIntentService.startActionFoo(this,"First","Second");
     }
 
     public void stopButtonClicked(View view) {
-        SimpleIntentService.startActionBaz(this,"First Parameter","Second Parameter");
+        SimpleJobIntentService.startActionBaz(this,"First Parameter","Second Parameter");
     }
 
     public void importButtonClicked(View view) {
@@ -90,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         //intent.putExtra(Intent.EXTRA_MIME_TYPES,mimeTypes);
 
         if(isStoragePermissionGranted()){
-            startActivityForResult(intent, 7);
+            startActivityForResult(intent, REQUEST_CODE_IMPORT_FILE_PICKER_ACTIVITY_FOR_RESULT);
         }
     }
 
@@ -98,10 +85,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         switch(requestCode){
-            case 7:
+            case REQUEST_CODE_IMPORT_FILE_PICKER_ACTIVITY_FOR_RESULT:
                 if(resultCode==RESULT_OK)
                 {
-                    SimpleIntentService.startActionImportRawData(this,data.getData());
+                    SimpleJobIntentService.startActionImportRawData(this,data.getData());
                 }
                 break;
         }

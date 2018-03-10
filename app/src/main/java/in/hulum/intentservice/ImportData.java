@@ -76,9 +76,6 @@ public class ImportData {
      * parameters.
      */
     private static void handleActionFoo(Context context,String param1, String param2) {
-        // TODO: Handle action Foo
-        //throw new UnsupportedOperationException("Not yet implemented");
-        Log.d(TAG,"This is action Fooo using Start Button. Parameters are " + param1 +" and " + param2);
         Intent broadcastIntent = new Intent();
         broadcastIntent.setAction(ACTION_FOO);
         for(int i=0;i<=100;i++){
@@ -94,16 +91,14 @@ public class ImportData {
      * parameters.
      */
     private static void handleActionBaz(Context context, String param1, String param2) {
-        // TODO: Handle action Baz
-        //throw new UnsupportedOperationException("Not yet implemented");
         Log.d(TAG,"This is action Baz using Stop!! Button. Parameters are " + param1 +" and " + param2);
     }
 
     /**
      * Import an Excel file (.XLS) into SQLite
      * This method does check the validity of the excel file
-     * It looks at certain markers to validate the file before importing
-     * @param uriExcelFile
+     * It looks at markers (excel headers) to validate the file before importing
+     * @param uriExcelFile Content Uri to the excel file
      */
 
     private static void handleActionImportRawData(Context context,Uri uriExcelFile){
@@ -115,13 +110,17 @@ public class ImportData {
         try {
             workbook = WorkbookFactory.create(context.getContentResolver().openInputStream(uriExcelFile));
             int sheets = 0 ;
+            Sheet firstSheet = null;
+
             if(workbook!=null){
                 sheets = workbook.getNumberOfSheets();
+
+                /* Read the first worksheet from the excel file */
+                firstSheet = workbook.getSheetAt(0);
             }
 
 
-            /* Read the first worksheet from the excel file */
-            Sheet firstSheet = workbook.getSheetAt(0);
+
 
             int firstRowNum,lastRowNum,firstColNum,lastColNum;
             DataFormatter dataFormatter = new DataFormatter();
@@ -135,6 +134,7 @@ public class ImportData {
             if(lastRowNum<2){
                 sendProgressBroadcast(context,ACTION_IMPORT_RAW_DATA,true,false,false,false,"The imported excel file does not contain any data. Please choose a valid file.",0,"");
                 Log.e(TAG,"Imported excel file contains less than two rows");
+                workbook.close();
                 return;
             }
 
@@ -152,18 +152,19 @@ public class ImportData {
             if(lastColNum<excelHeaders.length){
                 sendProgressBroadcast(context,ACTION_IMPORT_RAW_DATA,true,false,false,false,"The imported excel file does not contain valid UDISE data. Please choose another file containing valid UDISE data.",0,"");
                 Log.e(TAG,"Imported excel file contains only " + lastColNum + " columns which is lesser than standard " + excelHeaders.length + " columns.");
+                workbook.close();
                 return;
             }
             Log.d(TAG,"Total columns found: " + excelHeaders.length);
             /**
              * Send a broadcast that the imported file is being analysed for a valid data format
              */
-            sendProgressBroadcast(context,ACTION_IMPORT_RAW_DATA,false,true,false,false,"Analyzing data, please wait...",0,"");
+            sendProgressBroadcast(context,ACTION_IMPORT_RAW_DATA,false,true,false,false,"Analyzing headers, please wait...",0,"");
             Log.i(TAG,"Analysing headers...");
 
 
             /**
-             * Check all the headers present in the string array 'excelHeader' are also present in the excel file
+             * Check if all the headers present in the string array 'excelHeader' are also present in the excel file
              */
             Log.d(TAG,"First column  " + firstColNum + "  and last column num is " + lastColNum);
             for(int i=firstColNum;i<excelHeaders.length;i++){
@@ -172,6 +173,7 @@ public class ImportData {
                 if(!excelHeaders[i].equals(cellString)){
                     sendProgressBroadcast(context,ACTION_IMPORT_RAW_DATA,true,false,false,false,"The imported excel file does not contain UDISE data in a valid format. Please export the raw data to excel with headers and then save the file as xls file using MS-Excel software",0,"");
                     Log.e(TAG,"Imported excel file contains unknown header labels on iteration " + i);
+                    workbook.close();
                     return;
                 }
             }
@@ -237,9 +239,7 @@ public class ImportData {
             Log.d(TAG,"First Row " + firstRowNum + " and Last Row " + lastRowNum);
             Log.d(TAG,"First Column " + firstColNum + " and Last Row " + excelHeaders.length);
 
-            if(workbook != null){
-                workbook.close();
-            }
+
             acYears = acYearsSet.toArray(new String[acYearsSet.size()]);
             stateNames = stateNamesSet.toArray(new String[stateNamesSet.size()]);
             districtNames = districtNamesSet.toArray(new String[districtNamesSet.size()]);
@@ -287,6 +287,10 @@ public class ImportData {
             sendProgressBroadcast(context,ACTION_IMPORT_RAW_DATA,false,false,false,true,analysisMessage,100,userType);
 
             Log.d(TAG,analysisMessage);
+            /*
+             * Close the workbook to prevent memory leaks!
+             */
+            workbook.close();
 
         } catch (IOException e) {
             e.printStackTrace();
