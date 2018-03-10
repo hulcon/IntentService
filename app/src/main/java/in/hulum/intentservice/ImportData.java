@@ -110,7 +110,7 @@ public class ImportData {
 
         Workbook workbook = null;
 
-        sendProgressBroadcast(context,ACTION_IMPORT_RAW_DATA,false,false,false,false,"Loading file...",0,"");
+        sendProgressBroadcast(context,ACTION_IMPORT_RAW_DATA,false,false,false,false,"Loading file, Please Wait...",0,"");
 
         try {
             workbook = WorkbookFactory.create(context.getContentResolver().openInputStream(uriExcelFile));
@@ -150,11 +150,11 @@ public class ImportData {
             String[] excelHeaders = res.getStringArray(R.array.excel_headers);
 
             if(lastColNum<excelHeaders.length){
-                sendProgressBroadcast(context,ACTION_IMPORT_RAW_DATA,true,false,false,false,"The imported excel file does not contain UDISE data in a valid format. Please export the raw data in a valid format.",0,"");
+                sendProgressBroadcast(context,ACTION_IMPORT_RAW_DATA,true,false,false,false,"The imported excel file does not contain valid UDISE data. Please choose another file containing valid UDISE data.",0,"");
                 Log.e(TAG,"Imported excel file contains only " + lastColNum + " columns which is lesser than standard " + excelHeaders.length + " columns.");
                 return;
             }
-
+            Log.d(TAG,"Total columns found: " + excelHeaders.length);
             /**
              * Send a broadcast that the imported file is being analysed for a valid data format
              */
@@ -165,12 +165,13 @@ public class ImportData {
             /**
              * Check all the headers present in the string array 'excelHeader' are also present in the excel file
              */
+            Log.d(TAG,"First column  " + firstColNum + "  and last column num is " + lastColNum);
             for(int i=firstColNum;i<excelHeaders.length;i++){
                 Cell cell = firstRow.getCell(i);
                 String cellString = dataFormatter.formatCellValue(cell);
                 if(!excelHeaders[i].equals(cellString)){
                     sendProgressBroadcast(context,ACTION_IMPORT_RAW_DATA,true,false,false,false,"The imported excel file does not contain UDISE data in a valid format. Please export the raw data to excel with headers and then save the file as xls file using MS-Excel software",0,"");
-                    Log.e(TAG,"Imported excel file contains unknown header labels");
+                    Log.e(TAG,"Imported excel file contains unknown header labels on iteration " + i);
                     return;
                 }
             }
@@ -198,7 +199,17 @@ public class ImportData {
             for(int rowIndex=firstRowNum+1;rowIndex<lastRowNum+1;rowIndex++){
                 row = firstSheet.getRow(rowIndex);
                 firstColNum = row.getFirstCellNum();
-                for(int colIndex=firstColNum;colIndex<excelHeaders.length;colIndex++){
+                /*
+                 * Iterate from column 0 to column 10 since ac_years, states, districts,
+                 * zones and schools are all within the first 11 columns
+                 */
+                //TODO:
+                //Need to use constants instead of hard coding numerals in
+                //the if-else structure
+                //Typically there should be column index constants for
+                //all columns
+
+                for(int colIndex=firstColNum;colIndex<11;colIndex++){
                     cell = row.getCell(colIndex);
                     cellString = dataFormatter.formatCellValue(cell);
                     if(colIndex==0){
@@ -220,7 +231,7 @@ public class ImportData {
                 percentageCompleted = (rowIndex*100/lastRowNum);
                 String progressMessage = "Analysing imported file, " + percentageCompleted+ " % complete ...";
                 sendProgressBroadcast(context,ACTION_IMPORT_RAW_DATA,false,true,false,false,progressMessage,percentageCompleted,"");
-                Log.d(TAG,"Analysing imported file, " + percentageCompleted+ " % complete ...");
+                //Log.d(TAG,"Analysing imported file, " + percentageCompleted+ " % complete ...");
             }
 
             Log.d(TAG,"First Row " + firstRowNum + " and Last Row " + lastRowNum);
@@ -280,6 +291,8 @@ public class ImportData {
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InvalidFormatException e) {
+            Log.e(TAG,"Encountered invalid format!!!!!!!!!!!!");
+            sendProgressBroadcast(context,ACTION_IMPORT_RAW_DATA,true,false,false,false,"The imported excel file does not contain UDISE data in a valid format. Please export the raw data to excel with headers and then save the file as XLS file using MS-Excel software",0,"");
             e.printStackTrace();
         } catch (NullPointerException e){
             e.printStackTrace();
