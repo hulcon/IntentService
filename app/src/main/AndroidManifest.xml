@@ -23,7 +23,13 @@
         <service
             android:name=".SimpleJobIntentService"
             android:exported="false"
-            android:permission="android.permission.BIND_JOB_SERVICE"/>
+            android:permission="android.permission.BIND_JOB_SERVICE" />
+
+        <provider
+            android:name=".data.UdiseContentProvider"
+            android:authorities="in.hulum.intentservice"
+            android:enabled="true"
+            android:exported="false"></provider>
     </application>
 
 </manifest>
