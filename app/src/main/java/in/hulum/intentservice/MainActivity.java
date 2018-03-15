@@ -98,9 +98,9 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.e(TAG,"Entered onReceive intent action is " + intent.getAction());
+            //Log.e(TAG,"Entered onReceive intent action is " + intent.getAction());
             if(intent.getAction().equals(ImportData.ACTION_FOO)){
-                int value = intent.getIntExtra("percentage",-1);
+                int value = intent.getIntExtra("message",-1);
                 progressBar.setProgress(value);
                 textviewPercentage.setText(value + "% completed");
                 if(value==100){
@@ -113,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
                 boolean isAnalyzing = intent.getBooleanExtra(ImportData.PARAM_IS_ANALYSING,false);
                 boolean isImporting = intent.getBooleanExtra(ImportData.PARAM_IS_IMPORTING,false);
                 boolean isUserIdentified = intent.getBooleanExtra(ImportData.PARAM_USER_IDENTIFIED,false);
-                Log.d(TAG,"error is " + isError + " analysing " + isAnalyzing + " importing " + isImporting + " user identified " + isUserIdentified);
+                //Log.d(TAG,"error is " + isError + " analysing " + isAnalyzing + " importing " + isImporting + " user identified " + isUserIdentified);
                 if(isError){
                     String msg = intent.getStringExtra(ImportData.PARAM_MESSAGE);
                     textviewPercentage.setText(msg);
@@ -123,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
                     int value = intent.getIntExtra(ImportData.PARAM_PERCENTAGE_COMPLETED,0);
                     textviewPercentage.setText(msg);
                     progressBar.setProgress(value);
-                    Log.d(TAG,"Analysing message " + msg + " and percent " + value);
+                    //Log.d(TAG,"Analysing message " + msg + " and percent " + value);
                 }
                 else if(isImporting){
                     String msg = intent.getStringExtra(ImportData.PARAM_MESSAGE);
@@ -139,8 +139,8 @@ public class MainActivity extends AppCompatActivity {
                 else{
                     String msg = intent.getStringExtra(ImportData.PARAM_MESSAGE);
                     textviewPercentage.setText(msg);
-                    Log.d(TAG,"Percent completed is  " + intent.getIntExtra(ImportData.PARAM_PERCENTAGE_COMPLETED,-1));
-                    Log.d(TAG,"Message is " + msg);
+                    //Log.d(TAG,"Percent completed is  " + intent.getIntExtra(ImportData.PARAM_PERCENTAGE_COMPLETED,-1));
+                    //Log.d(TAG,"Message is " + msg);
                 }
             }
         }

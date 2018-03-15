@@ -1,13 +1,16 @@
 package in.hulum.intentservice;
 
 import android.app.IntentService;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.SystemClock;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.TextUtils;
 import android.util.Log;
 
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
@@ -19,8 +22,12 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
+
+import in.hulum.intentservice.data.UdiseContract;
+import in.hulum.intentservice.data.UdiseDbHelper;
 
 /**
  * Created by Irshad on 09-03-2018.
@@ -79,12 +86,15 @@ public class ImportData {
     private static void handleActionFoo(Context context,String param1, String param2) {
         Intent broadcastIntent = new Intent();
         broadcastIntent.setAction(ACTION_FOO);
+
+
+        /*
         for(int i=0;i<=100;i++){
             broadcastIntent.putExtra("percentage",i);
             LocalBroadcastManager.getInstance(context).sendBroadcast(broadcastIntent);
             SystemClock.sleep(100);
             Log.d(TAG,"Loop is running i value is " + i);
-        }
+        }*/
     }
 
     /**
@@ -276,8 +286,14 @@ public class ImportData {
                 }
             }
             else{
+                /*
+                 * This case is only possible if numberOfStates is equal to zero
+                 * If that's the case this issue will need to be tackled afterwards
+                 */
                 userType = "Unknown";
             }
+
+
             String analysisMessage = "Analysis Complete \n" +
                     "Number of Academic Years " + numberOfAcademicYears + "\n" +
                     "Number of States " + numberOfStates +  "\n" +
@@ -288,10 +304,69 @@ public class ImportData {
             sendProgressBroadcast(context,ACTION_IMPORT_RAW_DATA,false,false,false,true,analysisMessage,100,userType);
 
             Log.d(TAG,analysisMessage);
+
+            /*
+             * Check if it is an invalid excel file containing only headers
+             */
+            if(numberOfAcademicYears<1 || numberOfStates<1 || numberOfDistricts<1 || numberOfZones<1 || numberOfSchools<1 || userType.equals("Unknown")){
+                sendProgressBroadcast(context,ACTION_IMPORT_RAW_DATA,true,false,false,false,"Selected Excel file does not contain valid UDISE data. Please choose a valid file.",100,userType);
+            }
+
+
+            /*
+             * Start actual data insertion into SQLite database using content provider
+             */
+            ArrayList<String> oneExcelRowAllCells = new ArrayList<>();
+            ContentValues contentValuesForInsertion = new ContentValues();
+            UdiseDbHelper udiseDbHelper = new UdiseDbHelper(context);
+            for(int rowIndex=firstRowNum+1;rowIndex<lastRowNum+1;rowIndex++) {
+                row = firstSheet.getRow(rowIndex);
+
+                /*
+                 * Loop through all cells of a row and store it in a string array list
+                 */
+                for(int colIndex=0;colIndex<excelHeaders.length;colIndex++){
+                    cell = row.getCell(colIndex);
+                    cellString = dataFormatter.formatCellValue(cell);
+                    /* Trim the cell value read from excel and add it to ArrayList */
+                    oneExcelRowAllCells.add(colIndex,cellString.trim());
+                }
+                /*
+                 * Convert the ArrayList into Content Values for insertion
+                 */
+                contentValuesForInsertion = udiseDbHelper.convertExcelRowToContentValues(oneExcelRowAllCells);
+
+                /*
+                 * Insert the values into RawData table using Content Provider
+                 */
+                Uri returnedUri;
+                returnedUri = context.getContentResolver().insert(UdiseContract.RawData.CONTENT_URI,contentValuesForInsertion);
+                Log.d(TAG,"Index: " + rowIndex + " Returned Uri is " + returnedUri);
+                /*
+                 * Clear values from ArrayList and Content Values variables
+                 */
+                oneExcelRowAllCells.clear();
+                contentValuesForInsertion.clear();
+                /*
+                 * Send progress update broadcast
+                 */
+                percentageCompleted = (rowIndex*100/lastRowNum);
+                String progressMessage = "Importing School " + rowIndex + " out of " + lastRowNum + " [ " + percentageCompleted+ " % complete ]";
+                sendProgressBroadcast(context,ACTION_IMPORT_RAW_DATA,false,false,true,false,progressMessage,percentageCompleted,userType);
+            }
+
+
+
             /*
              * Close the workbook to prevent memory leaks!
              */
             workbook.close();
+
+            String[] projection = {UdiseContract.RawData.COLUMN_UDISE_SCHOOL_CODE};
+            Cursor returnedCursor = context.getContentResolver().query(UdiseContract.RawData.CONTENT_URI,projection,null,null,null);
+            Log.d(TAG,"Total records found is " + returnedCursor.getCount());
+            returnedCursor.close();
+
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -319,6 +394,5 @@ public class ImportData {
         broadcastIntent.putExtra(PARAM_USER_TYPE,userType);
         LocalBroadcastManager.getInstance(context).sendBroadcast(broadcastIntent);
     }
-
 
 }

@@ -285,7 +285,7 @@ public class UdiseContract {
          * New columns related to time of creation and no of changes made
          */
         public static final String COLUMN_ROW_DATA_VERSION = "row_data_version";
-        public static final String COLUMN_TIMESTAMP = "timestamp";
+        public static final String COLUMN_TIMESTAMP = "timeofinsertion";
 
 
 

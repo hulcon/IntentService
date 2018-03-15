@@ -132,8 +132,30 @@ public class UdiseContentProvider extends ContentProvider {
     @Override
     public Cursor query(Uri uri, String[] projection, String selection,
                         String[] selectionArgs, String sortOrder) {
-        // TODO: Implement this to handle query requests from clients.
-        throw new UnsupportedOperationException("Not yet implemented");
+        // TODO: Implement CODE_RAWDATA_WITH_SCHOOLNAME and CODE_RAWDATA_WITH_UDISECODE
+        // as well as other possible implementations
+        Cursor cursor = null;
+
+        /*
+         * Determine the kind of request made
+         */
+        int match = sUriMatcher.match(uri);
+        switch(match){
+            case CODE_RAWDATA:
+                cursor = mUdiseDbHelper.getReadableDatabase().query(UdiseContract.RawData.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder);
+                break;
+        }
+
+        if (cursor != null) {
+            cursor.setNotificationUri(getContext().getContentResolver(),uri);
+        }
+        return cursor;
     }
 
     @Override
