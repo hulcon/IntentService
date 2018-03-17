@@ -24,8 +24,11 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+import in.hulum.intentservice.Models.NumberOfSchoolsModel;
+import in.hulum.intentservice.Models.UserDataModel;
 import in.hulum.intentservice.data.UdiseContract;
 import in.hulum.intentservice.data.UdiseDbHelper;
 
@@ -82,10 +85,65 @@ public class ImportData {
     /**
      * Handle action Foo in the provided background thread with the provided
      * parameters.
+     *
      */
     private static void handleActionFoo(Context context,String param1, String param2) {
+        Log.d(TAG,"*****************************************************");
+        UdiseDbHelper udiseDbHelper = new UdiseDbHelper(context);
+        Log.d(TAG,"*****************************************************");
+        UserDataModel userDataModel;
+        Log.d(TAG,"*****************************************************");
+        userDataModel = udiseDbHelper.determineUserTypeAndDataModel(context);
+        Log.d(TAG,"*****************************************************");
+        Log.d(TAG,"Dcode " + userDataModel.getDistrictsList().get(0).getDistrictCode() + " Dname " + userDataModel.getDistrictsList().get(0).getDistrictName());
+        Log.d(TAG,"User Type " + userDataModel.getUserType());
+
+        List<NumberOfSchoolsModel> numberOfSchoolsModelListSummary = new ArrayList<NumberOfSchoolsModel>();
+
+        switch (userDataModel.getUserType()){
+            case UserDataModel.USER_TYPE_DISTRICT:
+                numberOfSchoolsModelListSummary =
+                udiseDbHelper.zonewiseNumberOfSchools(
+                        context,
+                        userDataModel.getDistrictsList().get(0).getDistrictCode(),
+                        userDataModel.getDistrictsList().get(0).getDistrictName(),
+                        userDataModel.getAcademicYearsList().get(0).getAc_year()
+                        //TODO: Academic year should be passed by user choice
+                );
+                Log.d(TAG,"Dcode " + userDataModel.getDistrictsList().get(0).getDistrictCode() + " Dname " + userDataModel.getDistrictsList().get(0).getDistrictName());
+
+                break;
+
+        }
+
+        String message = "";
+        String temporary;
+        message = "DISTRICT SUMMARY\n" + "Total Primary Schools: " + numberOfSchoolsModelListSummary.get(0).getTotalPrimarySchools() + "\n" +
+                "Total Middle Schools: " + numberOfSchoolsModelListSummary.get(0).getTotalMiddleSchools() + "\n" +
+                "Total High Schools: " + numberOfSchoolsModelListSummary.get(0).getTotalHighSchools() + "\n" +
+                "Total Higher Secondary Schools: " + numberOfSchoolsModelListSummary.get(0).getTotalHigherSecondarySchools() + "\n";
+        int listItems = numberOfSchoolsModelListSummary.size();
+        int length = numberOfSchoolsModelListSummary.get(0).getManagementList().size();
+        Log.d(TAG, "Length is " + length + " and total items " + listItems);
+        for(int k=0;k<numberOfSchoolsModelListSummary.get(0).getManagementList().size();k++){
+            temporary = numberOfSchoolsModelListSummary.get(0).getManagementList().get(k).getManagementName();
+            message = message + temporary + "\n";
+            temporary = "Primary Schools : " + numberOfSchoolsModelListSummary.get(0).getManagementList().get(k).getPrimarySchools() + "\n";
+            message = message + temporary;
+            temporary = "Middle Schools : " + numberOfSchoolsModelListSummary.get(0).getManagementList().get(k).getMiddleSchools() + "\n";
+            message = message + temporary;
+            temporary = "High Schools : " + numberOfSchoolsModelListSummary.get(0).getManagementList().get(k).getHighSchools() + "\n";
+            message = message + temporary;
+            temporary = "Higher Secondary Schools : " + numberOfSchoolsModelListSummary.get(0).getManagementList().get(k).getHigherSecondarySchools() + "\n";
+            message = message + temporary;
+            Log.d(TAG,"Message " + message);
+            Log.d(TAG,"Temp " + temporary);
+        }
+
         Intent broadcastIntent = new Intent();
         broadcastIntent.setAction(ACTION_FOO);
+        broadcastIntent.putExtra("message",message);
+        LocalBroadcastManager.getInstance(context).sendBroadcast(broadcastIntent);
 
 
         /*

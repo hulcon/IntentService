@@ -82,9 +82,7 @@ public class SimpleJobIntentService extends JobIntentService {
 
     @Override
     protected void onHandleWork(@NonNull Intent intent) {
-        if(intent!=null){
-            ImportData.executeAction(this,intent);
-        }
+        ImportData.executeAction(this,intent);
     }
 
 }

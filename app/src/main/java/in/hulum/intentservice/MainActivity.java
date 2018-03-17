@@ -100,12 +100,9 @@ public class MainActivity extends AppCompatActivity {
         public void onReceive(Context context, Intent intent) {
             //Log.e(TAG,"Entered onReceive intent action is " + intent.getAction());
             if(intent.getAction().equals(ImportData.ACTION_FOO)){
-                int value = intent.getIntExtra("message",-1);
-                progressBar.setProgress(value);
-                textviewPercentage.setText(value + "% completed");
-                if(value==100){
-                    textviewPercentage.setText("Finished");
-                }
+                String message = intent.getStringExtra("message");
+                //progressBar.setProgress(value);
+                textviewPercentage.setText(message);
             }
 
             else if(intent.getAction().equals(ImportData.ACTION_IMPORT_RAW_DATA)){
